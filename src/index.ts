@@ -48,6 +48,11 @@ interface Apartment {
     layoutType: string;       // row[16] (2+1, 3+1 gibi)
 }
 
+interface BuildingResponse {
+    apartments: Apartment[];
+    photoGallery: string;
+}
+
 app.get('/', (req: Request, res: Response) => {
     const data = { hello: "Hello" }
     res.json(data)
@@ -59,18 +64,20 @@ app.get('/api/building-data', async (req: Request, res: Response) => {
         const googleSheets = google.sheets({ version: 'v4', auth: client as any });
 
         // Tablodaki A2:Q arasını oku (Başlıkları atlamak için A2'den başlattık)
-        const getRows = await googleSheets.spreadsheets.values.get({
+        const response = await googleSheets.spreadsheets.values.batchGet({
             spreadsheetId,
-            range: "corazon-17!A2:Q",
+            ranges: ["'corazon-17'!A2:Q173", "'corazon-17'!B174:B174"],
         });
 
-        const rows = getRows.data.values;
+        const valueRanges = response.data.valueRanges;
 
-        if (!rows) {
-            return res.json([]);
+        if (!valueRanges || valueRanges.length < 2) {
+            return res.json({ apartments: [], specialInfo: "" });
         }
 
-        const apartments: Apartment[] = rows.map(row => ({
+        // 1. Aralığı (Apartments) işle
+        const apartmentRows = valueRanges[0].values || [];
+        const apartments: Apartment[] = apartmentRows.map((row) => ({
             apartmentCode: row[0] || "",
             squareMeters: Number(row[1]) || 0,
             price: row[2] || "0",
@@ -90,7 +97,17 @@ app.get('/api/building-data', async (req: Request, res: Response) => {
             layoutType: row[16] || ""
         }));
 
-        res.json(apartments);
+        // 2. Aralığı (B152 hücresi) işle
+        // valueRanges[1].values bir dizi içindeki dizi döner: [[veri]]
+        const photoGallery = valueRanges[1].values ? valueRanges[1].values[0][0] : "";
+
+        // Sonucu birleştirip gönder
+        const finalResponse: BuildingResponse = {
+            apartments: apartments,
+            photoGallery: photoGallery
+        };
+
+        res.json(finalResponse);
     } catch (error) {
         console.error("Google Sheets Hatası:", error);
         res.status(500).send("Sunucu hatası");
