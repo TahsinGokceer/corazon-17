@@ -31,7 +31,7 @@ const auth = new google.auth.GoogleAuth({
 interface Apartment {
     apartmentCode: string;    // row[0]
     squareMeters: number;     // row[1]
-    price: string;            // row[2] (Para birimi içerebileceği için string)
+    price: string;            // row[2]
     roomCount: string;        // row[3]
     bathroomCount: number;    // row[4]
     facade: string;           // row[5]
@@ -45,7 +45,7 @@ interface Apartment {
     block: string;            // row[13]
     apartmentNumber: number;  // row[14]
     grossSquareMeters: number;// row[15]
-    layoutType: string;       // row[16] (2+1, 3+1 gibi)
+    layoutType: string;       // row[16]
 }
 
 interface BuildingResponse {
@@ -90,7 +90,7 @@ app.get('/api/building-data', async (req: Request, res: Response) => {
             floorPlanUrl: row[9] || "",
             offerUrl: row[10] || "",
             infoUrl: row[11] || "",
-            floorNumber: Number(row[12]) || 0,
+            floorNumber: Number(row[12].split('.')[0]) || 0,
             block: row[13] || "",
             apartmentNumber: Number(row[14]) || 0,
             grossSquareMeters: Number(row[15]) || 0,
