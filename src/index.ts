@@ -64,19 +64,23 @@ app.get('/api/building-data', async (req: Request, res: Response) => {
         const googleSheets = google.sheets({ version: 'v4', auth: client as any });
 
         // Tablodaki A2:Q arasını oku (Başlıkları atlamak için A2'den başlattık)
-        const response = await googleSheets.spreadsheets.values.batchGet({
+        const response = await googleSheets.spreadsheets.values.get({
             spreadsheetId,
-            ranges: ["'corazon-17'!A2:Q173", "'corazon-17'!B174:B174"],
+            range: `'${process.env.PROJECT_NAME}'!A2:Q`,
         });
 
-        const valueRanges = response.data.valueRanges;
+        const allRows = response.data.values;
 
-        if (!valueRanges || valueRanges.length < 2) {
-            return res.json({ apartments: [], specialInfo: "" });
+        if (!allRows || allRows.length === 0) {
+            return res.json({ apartments: [], photoGallery: "" });
         }
 
-        // 1. Aralığı (Apartments) işle
-        const apartmentRows = valueRanges[0].values || [];
+        // 1. En son satırı galeriyi temsil etmesi için listeden çıkarıyoruz (pop)
+        const lastRow = allRows.pop(); 
+        // Galeri linki B sütununda olduğu için lastRow[1]'i alıyoruz
+        const photoGallery = lastRow ? lastRow[1] : "";
+
+        const apartmentRows = allRows
         const apartments: Apartment[] = apartmentRows.map((row) => ({
             apartmentCode: row[0] || "",
             squareMeters: Number(row[1]) || 0,
@@ -97,16 +101,12 @@ app.get('/api/building-data', async (req: Request, res: Response) => {
             layoutType: row[16] || ""
         }));
 
-        // 2. Aralığı (B152 hücresi) işle
-        // valueRanges[1].values bir dizi içindeki dizi döner: [[veri]]
-        const photoGallery = valueRanges[1].values ? valueRanges[1].values[0][0] : "";
-
         // Sonucu birleştirip gönder
         const finalResponse: BuildingResponse = {
             apartments: apartments,
             photoGallery: photoGallery
         };
-
+        
         res.json(finalResponse);
     } catch (error) {
         console.error("Google Sheets Hatası:", error);
