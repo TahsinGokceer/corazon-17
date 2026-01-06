@@ -2,6 +2,8 @@ import { google } from 'googleapis';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+// import path from 'path';
+// import compression from 'compression';
 
 dotenv.config();
 
@@ -12,11 +14,31 @@ const spreadsheetId = process.env.SPREADSHEET_ID || "spreadsheet_id";
 
 // Middleware
 app.use(cors({
-    origin: '*',
+    origin: '*',   // Burada webgl'in yayınlandığı linki yazmalıyız. PC için sorun olmayacaksa.
     methods: ['GET']
 }));
 app.use(express.json());
-app.use(express.static('public'));
+// app.use(compression());
+
+// Statik dosyaları servis et
+// app.use(express.static(path.join(__dirname, '../public'), {
+//     // index: false, // Bu satır / adresinde index.html açılmasını engeller
+//     setHeaders: (res, filePath) => {
+//         // .gz uzantılı dosyalar için tarayıcıya "bunu zipten aç" diyoruz
+//         if (filePath.endsWith('.gz')) {
+//             res.set('Content-Encoding', 'gzip');
+//         }
+
+//         // Dosyanın asıl tipini tarayıcıya bildiriyoruz
+//         if (filePath.endsWith('.js.gz')) {
+//             res.set('Content-Type', 'application/javascript');
+//         } else if (filePath.endsWith('.wasm.gz')) {
+//             res.set('Content-Type', 'application/wasm');
+//         } else if (filePath.endsWith('.data.gz')) {
+//             res.set('Content-Type', 'application/octet-stream');
+//         }
+//     }
+// }));
 
 const credentials = process.env.GOOGLE_CREDENTIALS 
     ? JSON.parse(process.env.GOOGLE_CREDENTIALS) 
@@ -54,8 +76,7 @@ interface BuildingResponse {
 }
 
 app.get('/', (req: Request, res: Response) => {
-    const data = { hello: "Hello" }
-    res.json(data)
+    return res.json({ hello: "Hello" })
 })
 
 app.get('/api/building-data', async (req: Request, res: Response) => {
