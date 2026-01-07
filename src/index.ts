@@ -2,6 +2,8 @@ import { google } from 'googleapis';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+
+// Githuba atarken yorum satırına alınabilir. Webgl için kullanıyoruz
 // import path from 'path';
 // import compression from 'compression';
 
@@ -14,10 +16,12 @@ const spreadsheetId = process.env.SPREADSHEET_ID || "spreadsheet_id";
 
 // Middleware
 app.use(cors({
-    origin: '*',   // Burada webgl'in yayınlandığı linki yazmalıyız. PC için sorun olmayacaksa.
+    origin: 'https://corazon-17.netlify.app',   // Burada webgl'in yayınlandığı linki yazmalıyız.
     methods: ['GET']
 }));
 app.use(express.json());
+
+// Githuba atarken yorum satırına alınabilir. Webgl için kullanıyoruz
 // app.use(compression());
 
 // Statik dosyaları servis et
