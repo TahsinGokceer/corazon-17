@@ -16,7 +16,7 @@ const spreadsheetId = process.env.SPREADSHEET_ID || "spreadsheet_id";
 
 // Middleware
 app.use(cors({
-    origin: 'https://corazon-17.netlify.app',   // Burada webgl'in yayınlandığı linki yazmalıyız.
+    origin: ['https://corazon-17.netlify.app', 'https://demo-webgl.netlify.app'],   // Burada webgl'in yayınlandığı linki yazmalıyız. 
     methods: ['GET']
 }));
 app.use(express.json());
