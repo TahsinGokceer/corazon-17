@@ -2,7 +2,6 @@ import { google } from 'googleapis';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-
 // Githuba atarken yorum satırına alınabilir. Webgl için kullanıyoruz
 // import path from 'path';
 // import compression from 'compression';
@@ -138,6 +137,11 @@ app.get('/api/building-data', async (req: Request, res: Response) => {
         res.status(500).send("Sunucu hatası");
     }
 });
+
+app.get('/health-check', (req: Request, res: Response) => {
+    console.log('Health Check istek geldi');
+    return res.status(200).send('OK');
+})
 
 app.listen(PORT, () => {
     console.log(`Server http://localhost:${PORT} adresinde çalışıyor`);
